@@ -1,39 +1,71 @@
 <?php
 namespace domino91\SimpleProfiler;
 
-trait SimpleProfilerTrait
+class SimpleProfiler
 {
-    private $timer = [];
+    private static $timer = [];
 
-    public function start()
+    public static function start($noisy = false)
     {
-        $this->timer = [];
+        self::$timer = [];
 
-        $this->timer[] = [
+        self::$timer[] = [
             'stepName' => 'start',
-            'time'     => microtime(true),
+            'time'     => microtime(true)
         ];
+
+       if ($noisy) {
+            printf(
+                "%s [%d]\n",
+                "start"
+                microtime(true)
+            );
+
+       }
     }
 
-    public function step(string $stepName)
+    /**
+     * Use before testing code area
+    */
+    public static function step(string $stepName, $noisy = false)
     {
-        $this->timer[] = [
+        self::$timer[] = [
             'stepName' => $stepName,
-            'time'     => microtime(true),
+            'time'     => microtime(true)
         ];
+
+        if ($noisy) {
+            printf(
+                "%s [%d]\n",
+                $stepName,
+                microtime(true)
+            );
+
+       }
+
     }
 
-    public function stop()
+    public static function stop($noisy = false)
     {
-        $this->timer[] = [
+        self::$timer[] = [
             'stepName' => 'stop',
-            'time'     => microtime(true),
+            'time'     => microtime(true)
         ];
+
+       if ($noisy) {
+            printf(
+                "%s [%d]\n",
+                "stop",
+                microtime(true)
+            );
+
+       }
+
     }
 
-    public function saveToFile(string $filename)
+    public static function saveToFile(string $filename)
     {
-        $result = $this->calculate();
+        $result = self::calculate();
 
         $content = '';
 
@@ -43,24 +75,24 @@ trait SimpleProfilerTrait
                 $timer['stepName'],
                 $timer['hours'],
                 $timer['minutes'],
-                $timer['seconds'],
+                $timer['seconds']
             );
         }
 
         file_put_contents($filename, $content);
     }
 
-    private function calculate(): array
+    private static function calculate(): array
     {
         $result = [];
 
-        if (count($this->timer) < 2) {
+        if (count(self::$timer) < 2) {
             throw new InvalidArgumentException('Start and stop is needed!');
         }
 
         $previousTime = null;
 
-        foreach ($this->timer as $key => $timer) {
+        foreach (self::$timer as $key => $timer) {
             if ($key == 0) {
                 $previousTime = $timer['time'];
                 continue;
@@ -78,7 +110,7 @@ trait SimpleProfilerTrait
                 'stepName' => $timer['stepName'],
                 'hours'    => $hours,
                 'minutes'  => $minutes,
-                'seconds'  => $seconds,
+                'seconds'  => $seconds
             ];
         }
 
